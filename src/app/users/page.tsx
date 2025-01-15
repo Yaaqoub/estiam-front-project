@@ -1,32 +1,43 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+"use client";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import {useCallback, useEffect, useState} from "react";
+import { UserCard } from "@/components/user-card";
 
-export default function Home() {
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar: string;
+}
+
+export default function Users() {
+  const [users, setUsers] = useState<User[]>([]);
+
+  const getUsers = useCallback(async () => {
+    try {
+      const usersResponse = await fetch("https://api.escuelajs.co/api/v1/users");
+      const usersData = await usersResponse.json();
+
+      setUsers(usersData);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getUsers();
+  }, []);
+
   return (
-    <div className="p-3">
-      <Card className="flex flex-col w-[350px] items-center justify-center border-black">
-        <CardHeader>
-          <CardTitle>User Name</CardTitle>
-          <CardDescription>user@email.com</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Avatar>
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        </CardContent>
-      </Card>
+    <div className="p-3 grid grid-cols-2 gap-4">
+      {users.map((user) => (
+        <UserCard
+          key={user.id}
+          userName={user.name}
+          email={user.email}
+          avatar={user.avatar}
+        />
+      ))}
     </div>
   );
 }
